@@ -1,4 +1,7 @@
 Flask==2.3.3
 pandas
 statsmodels
+numpy
+scikit-learn
 gunicorn
+
