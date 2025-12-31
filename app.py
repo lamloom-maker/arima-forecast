@@ -14,10 +14,10 @@ DATA_PATH = "World_MerchantFleet_CLEAN.csv"
 # ====================================
 df = pd.read_csv(DATA_PATH)
 
-# نفلتر بيانات World فقط
+# filter World only
 df_world = df[df["Economy Label"] == "World"]
 
-# نستخدم عمود DWT_million كسلسلة زمنية
+# prepare time series
 series = (
     df_world
     .sort_values("Year")["DWT_million"]
@@ -49,5 +49,3 @@ def index():
 
 if __name__ == "__main__":
     app.run()
-
-
