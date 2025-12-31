@@ -3,27 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <title>ARIMA Forecast</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            background: #4f46e5;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4338ca;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        canvas {
+            margin-top: 30px;
+        }
+    </style>
 </head>
 <body>
 
-<h1>ARIMA Forecast – World Fleet</h1>
+<div class="container">
+    <h1>ARIMA Forecast</h1>
 
-<form method="POST">
-    <label>Forecast years:</label>
-    <input type="number" name="steps" value="5" min="1" max="20">
-    <br><br>
-    <button type="submit">Run Forecast</button>
-</form>
+    <form method="POST">
+        <label>Ship Type:</label>
+        <select name="ship_type">
+            {% for ship in ship_types %}
+                <option value="{{ ship }}" {% if ship == selected_ship %}selected{% endif %}>
+                    {{ ship }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label>Number of future years:</label>
+        <input type="number" name="steps" min="1" value="{{ steps }}">
+
+        <button type="submit">Run Forecast</button>
+    </form>
+
+    {% if forecast %}
+    <div class="results">
+        <h3>Forecast (DWT million):</h3>
+        <ul>
+            {% for value in forecast %}
+                <li>{{ value | round(2) }}</li>
+            {% endfor %}
+        </ul>
+
+        <canvas id="forecastChart"></canvas>
+    </div>
+    {% endif %}
+</div>
 
 {% if forecast %}
-    <h2>Forecast Results:</h2>
-    <ul>
-        {% for value in forecast %}
-            <li>{{ value }}</li>
-        {% endfor %}
-    </ul>
+<script>
+    const years = {{ years | tojson }};
+    const forecastData = {{ forecast | tojson }};
+
+    const ctx = document.getElementById('forecastChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'Forecast DWT (million)',
+                data: forecastData,
+                borderColor: '#4f46e5',
+                backgroundColor: 'rgba(79,70,229,0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'DWT (million)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Year'
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endif %}
 
 </body>
 </html>
+
+
 
