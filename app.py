@@ -7,20 +7,22 @@ from statsmodels.tsa.arima.model import ARIMA
 app = Flask(__name__)
 
 MODEL_PATH = "arima_model.pkl"
-DATA_PATH = "World_MerchantFleet-supply.csv"
+DATA_PATH = "World_MerchantFleet_CLEAN.csv"
 
 # ====================================
-# 1) Load and prepare real data
+# 1) Load & prepare real data
 # ====================================
 df = pd.read_csv(DATA_PATH)
 
-# 🔴 عدّلي القيم حسب بياناتك
-df = df[df["Economy"] == "World"]
-df = df[df["ShipType"] == "Total Fleet"]
+# نفلتر بيانات World فقط
+df_world = df[df["Economy Label"] == "World"]
 
-df = df.sort_values("Year")
-
-series = df["DWT_million"].values
+# نستخدم عمود DWT_million كسلسلة زمنية
+series = (
+    df_world
+    .sort_values("Year")["DWT_million"]
+    .astype(float)
+)
 
 # ====================================
 # 2) Load or train ARIMA model
@@ -47,4 +49,5 @@ def index():
 
 if __name__ == "__main__":
     app.run()
+
 
