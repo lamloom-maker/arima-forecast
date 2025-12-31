@@ -77,6 +77,18 @@
     <h1>ARIMA Forecast</h1>
 
     <form method="POST">
+
+        <!-- 🌍 Economy dropdown -->
+        <label>Economy:</label>
+        <select name="economy">
+            {% for eco in economies %}
+                <option value="{{ eco }}" {% if eco == selected_economy %}selected{% endif %}>
+                    {{ eco }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- 🚢 Ship Type dropdown -->
         <label>Ship Type:</label>
         <select name="ship_type">
             {% for ship in ship_types %}
@@ -86,6 +98,7 @@
             {% endfor %}
         </select>
 
+        <!-- 🔮 Steps -->
         <label>Number of future years:</label>
         <input type="number" name="steps" min="1" value="{{ steps }}">
 
@@ -154,6 +167,3 @@
 
 </body>
 </html>
-
-
-
