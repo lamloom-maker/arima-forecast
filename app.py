@@ -1,51 +1,37 @@
-from flask import Flask, render_template, request
-import os
-import pickle
+from flask import Flask
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 
 app = Flask(__name__)
 
-MODEL_PATH = "arima_model.pkl"
+# ====================================
+# Load data
+# ====================================
 DATA_PATH = "World_MerchantFleet_CLEAN.csv"
-
-# ====================================
-# 1) Load & prepare real data
-# ====================================
 df = pd.read_csv(DATA_PATH)
 
-# filter World only
-df_world = df[df["Economy Label"] == "World"]
+# Filter World + Total fleet
+df_world = df[
+    (df["Economy Label"] == "World") &
+    (df["ShipType Label"] == "Total fleet")
+].sort_values("Year")
 
-# prepare time series
-series = (
-    df_world
-    .sort_values("Year")["DWT_million"]
-    .astype(float)
-)
+series = df_world["DWT_million"].astype(float)
 
 # ====================================
-# 2) Load or train ARIMA model
+# Train ARIMA
 # ====================================
-if os.path.exists(MODEL_PATH):
-    with open(MODEL_PATH, "rb") as f:
-        model_fit = pickle.load(f)
-else:
-    model = ARIMA(series, order=(1, 1, 1))
-    model_fit = model.fit()
-    with open(MODEL_PATH, "wb") as f:
-        pickle.dump(model_fit, f)
+model = ARIMA(series, order=(1, 1, 1))
+model_fit = model.fit()
 
 # ====================================
-# 3) Routes
+# Simple route (test)
 # ====================================
-@app.route("/", methods=["GET", "POST"])
-def index():
-    forecast = None
-    if request.method == "POST":
-        steps = int(request.form.get("steps", 1))
-        forecast = model_fit.forecast(steps=steps).tolist()
-    return render_template("index.html", forecast=forecast)
+@app.route("/")
+def home():
+    forecast = model_fit.forecast(steps=5).tolist()
+    return f"<h2>Forecast: {forecast}</h2>"
 
 if __name__ == "__main__":
     app.run()
+
