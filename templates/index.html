@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ARIMA Forecast</title>
+</head>
+<body>
+
+    <h1>ARIMA Forecast</h1>
+
+    <form method="POST">
+        <label>كم خطوة تبغي التوقع؟</label><br><br>
+        <input type="number" name="steps" value="1" min="1">
+        <button type="submit">توقع</button>
+    </form>
+
+    {% if forecast %}
+        <h2>نتيجة التوقع:</h2>
+        <ul>
+        {% for value in forecast %}
+            <li>{{ value }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+</body>
+</html>
